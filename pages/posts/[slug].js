@@ -44,9 +44,7 @@ export default function Post({ data = {}, preview }) {
           <>
             <article>
               <Head>
-                <title>
-                  {post.title} | Next.js Blog Example with {CMS_NAME}
-                </title>
+                <title>{post.title} | #HeadStartCP</title>
                 {post.coverImage && (
                   <meta
                     key="ogImage"
