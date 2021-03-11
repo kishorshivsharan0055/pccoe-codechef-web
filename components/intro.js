@@ -2,7 +2,7 @@ import { CMS_NAME, CMS_URL } from "../lib/constants";
 
 export default function Intro() {
   return (
-    <section className="flex-col md:flex-row flex items-center  mt-16 mb-16 md:mb-12">
+    <section className="flex-col md:flex-row flex items-center space-x-10  mt-16 mb-16 md:mb-12">
       <img
         width={200}
         height={200}
@@ -17,6 +17,21 @@ export default function Intro() {
         <h4 className="text-center md:text-left text-lg mt-5 md:pl-8">
           Let Us Help You To get Started
         </h4>
+      </div>
+
+      <div className="pb-6 space-x-6 flex md:pt-0 pt-5 lg:flex-row items-center place-content-center">
+        <a href="https://www.instagram.com/pccoe.codechef.chapter/">
+          <img src="/instagram.svg" alt="instagram" className="w-6 h-6" />
+        </a>
+        <a href="https://www.linkedin.com/company/codechef-pccoe-chapter">
+          <img src="/linkedin.svg" alt="linkedIn" className="w-6 h-6" />
+        </a>
+        <a href="https://www.facebook.com/pccoe.codechef.chapter/">
+          <img src="/facebook-logo.svg" alt="facebook" className="w-6 h-6" />
+        </a>
+        <a href="https://twitter.com/CodechefPccoe">
+          <img src="/twitter.svg" alt="twitter" className="w-6 h-6" />
+        </a>
       </div>
     </section>
   );

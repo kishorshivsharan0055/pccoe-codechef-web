@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="bg-accent-1 border-t border-accent-2">
       <Container>
-        <div className="py-28 flex flex-col lg:flex-row items-center">
+        <div className="py-20 flex flex-col lg:flex-row items-center">
           <h3 className="text-4xl lg:text-5xl font-bold tracking-tighter leading-tight text-center lg:text-left mb-10 lg:mb-0 lg:pr-4 lg:w-1/2">
             Codechef PCCOE Chapter
           </h3>
@@ -13,6 +13,21 @@ export default function Footer() {
               #HeadStartCP
             </a>
           </div>
+        </div>
+
+        <div className="pb-6 space-x-6 flex  lg:flex-row items-center place-content-center">
+          <a href="https://www.instagram.com/pccoe.codechef.chapter/">
+            <img src="/instagram.svg" alt="instagram" className="w-6 h-6" />
+          </a>
+          <a href="https://www.linkedin.com/company/codechef-pccoe-chapter">
+            <img src="/linkedin.svg" alt="linkedIn" className="w-6 h-6" />
+          </a>
+          <a href="https://www.facebook.com/pccoe.codechef.chapter/">
+            <img src="/facebook-logo.svg" alt="facebook" className="w-6 h-6" />
+          </a>
+          <a href="https://twitter.com/CodechefPccoe">
+            <img src="/twitter.svg" alt="twitter" className="w-6 h-6" />
+          </a>
         </div>
       </Container>
     </footer>
