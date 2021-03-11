@@ -20,6 +20,7 @@ export default function Index({ allPosts, preview }) {
         <Container>
           <Intro />
           <Info />
+
           {heroPost && (
             <HeroPost
               title={heroPost.title}
