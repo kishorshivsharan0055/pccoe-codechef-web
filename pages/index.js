@@ -16,6 +16,8 @@ export default function Index({ allPosts, preview }) {
       <Layout preview={preview}>
         <Head>
           <title>Codechef PCCOE Chapter</title>
+          <link rel="shortcut icon" href="/favicon.ico" />
+          <img src="" />
         </Head>
         <Container>
           <Intro />
