@@ -32,6 +32,8 @@ export const quiz: React.FC<quizProps> = ({}) => {
     {}
   );
 
+  const [timer, settimer] = useState(Date.now() + 60000);
+
   useEffect(() => {
     if (window.performance) {
       if (performance.navigation.type == 1) {
@@ -48,8 +50,10 @@ export const quiz: React.FC<quizProps> = ({}) => {
     settempAns("");
     setisloading(true);
     settimeCounter(timeCounter + 1);
-    if (cnt < 19) setCnt(cnt + 1);
-    else if (cnt === 19) {
+    if (cnt < 19) {
+      setCnt(cnt + 1);
+      settimer(Date.now() + 60000);
+    } else if (cnt === 19) {
       userAns.map((item, index) => {
         if (item.ans === questions.docs[index].get("ans")) marks = marks + 1;
       });
@@ -301,11 +305,7 @@ export const quiz: React.FC<quizProps> = ({}) => {
             </div>
 
             <div className="flex flex-row items-center justify-around space-x-10 mt-8">
-              <Countdown
-                date={Date.now() + 30000}
-                onComplete={nextQuestion}
-                key={cnt}
-              />
+              <Countdown date={timer} onComplete={nextQuestion} key={cnt} />
 
               <RoundedButton
                 style={{
