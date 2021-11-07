@@ -68,7 +68,6 @@ export const quiz: React.FC<quizProps> = ({}) => {
         })
         .then(() => {
           setisloading(false);
-          firebase.auth().signOut();
           router.replace("/codeofiesta");
         })
         .catch((err) => {

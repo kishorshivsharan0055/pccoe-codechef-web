@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import Footer from "../components/footer";
+import { useAuthState } from "react-firebase-hooks/auth";
+import firebase from "../utils/firebaseClient";
 
 interface codeofiestaProps {}
 
 export const codeofiesta: React.FC<codeofiestaProps> = ({}) => {
+  useEffect(() => {
+    firebase.auth().signOut();
+  }, []);
+
   return (
     <div>
       <section className="w-full bg-white">
