@@ -1,6 +1,5 @@
-import React, { useState, useRef } from "react";
 import Link from "next/link";
-import { loadavg } from "os";
+import React, { useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import firebase from "../utils/firebaseClient";
 

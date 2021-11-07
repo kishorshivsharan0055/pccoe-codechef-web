@@ -1,6 +1,5 @@
-import Avatar from "./avatar";
-import Date from "./date";
 import CoverImage from "./cover-image";
+import Date from "./date";
 import PostTitle from "./post-title";
 
 export default function PostHeader({ title, coverImage, date }) {
