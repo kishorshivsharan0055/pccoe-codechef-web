@@ -2,10 +2,10 @@ import { CircularProgress } from "@rmwc/circular-progress";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import Countdown from "react-countdown";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
 import RoundedButton from "../components/Buttons/Rounded";
-import Input from "../components/Input";
 import Navbar from "../components/Navbar";
 import firebase from "../utils/firebaseClient";
 
@@ -15,9 +15,6 @@ export const quiz: React.FC<quizProps> = ({}) => {
   const [user, loading, error] = useAuthState(firebase.auth());
   // console.log the current user and loading status
   const router = useRouter();
-  const [collegeName, setCollegeName] = useState("");
-  const [year, setYear] = useState("");
-  const [hackerRankId, sethackerRankId] = useState("");
   const [isloading, setisloading] = useState(false);
 
   const db = firebase.firestore();
@@ -27,33 +24,33 @@ export const quiz: React.FC<quizProps> = ({}) => {
     {}
   );
 
-  const SubmitDetails = async () => {
-    setisloading(true);
-    await db
-      .collection("participants")
-      .doc(user.uid)
-      .set({
-        name: user.displayName,
-        email: user.email,
-        college_name: collegeName,
-        year: year,
-        hackerRankId: hackerRankId,
-      })
-      .then(() => {
-        setisloading(false);
-        console.log("submitted");
-      })
-      .catch((err) => {
-        console.log("error : ", err);
-        alert("Unable to Submit details");
-      });
+  const [Ans, setAns] = useState("");
+  const [cnt, setCnt] = useState(0);
+  let [userAns, setUserAns] = useState<Array<string>>([]);
+  let marks: number = 0;
 
+  const [questions, questionsLoading, questionsError] = useCollection(
+    firebase.firestore().collection("questions"),
+    {}
+  );
+
+  const nextQuestion = () => {
+    console.log("user ans: ", userAns);
+    setisloading(true);
+    if (cnt < 19) setCnt(cnt + 1);
+    else if (cnt === 19) {
+      userAns.map((item, index) => {
+        console.log(item);
+        if (item === questions.docs[index].get("ans")) marks = marks + 1;
+      });
+      console.log("Marks: ", marks);
+    }
     setisloading(false);
   };
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/");
+      router.push("/auth");
     }
   }, []);
 
@@ -63,128 +60,241 @@ export const quiz: React.FC<quizProps> = ({}) => {
         <title>Quiz</title>
       </Head>
       <Navbar />
+
       <section className="pt-20">
-        <div className="px-4 py-12 mx-auto max-w-7xl sm:px-6 md:px-12 lg:px-24 lg:py-24">
-          <div className="flex flex-wrap items-center mx-auto max-w-7xl">
-            <div
-              className="
-              flex flex-col
-              items-start
-              mb-16
-              text-left
-              lg:flex-grow lg:w-1/2 lg:pr-24
-              md:mb-0
-            "
-            >
-              <span className="mb-8 text-xs font-bold tracking-widest text-blue-400 uppercase">
-                {" "}
-                MCQ - Round 1{" "}
-              </span>
-              <h1
-                className="
-                mb-8
-                text-4xl
-                font-bold
-                leading-none
-                tracking-tighter
-                text-neutral-600
-                md:text-7xl
-                lg:text-5xl
-              "
-              >
-                {" "}
-                Code-O-Fiesta{" "}
-              </h1>
-              <p className="mb-8 text-base leading-relaxed text-left text-gray-300">
-                {" "}
-                Free and Premium themes, UI Kit's, templates and landing pages
-                built with Tailwind CSS, HTML &amp; Next.js.{" "}
-              </p>
-              <img
-                src="/quiz.png"
-                className="self-center"
-                style={{ width: 300, height: 300 }}
-              />
-            </div>
-
-            <div className="w-full mt-12 lg:w-5/6 lg:max-w-lg rounded-xl xl:mt-0 shadow-lg p-4">
-              <div>
-                <div className="relative w-full max-w-lg space-y-4 justify-between pr-8 self-center">
-                  <div
-                    className="
-                    absolute
-                    top-0
-                    rounded-full
-                    bg-violet-300
-                    -left-4
-                    w-72
-                    h-72
-                    mix-blend-multiply
-                    filter
-                    blur-xl
-                    opacity-70
-                    animate-blob
-                  "
-                  ></div>
-
-                  <div
-                    className="
-                    absolute
-                    rounded-full
-                    bg-fuchsia-300
-                    -bottom-24
-                    right-20
-                    w-72
-                    h-72
-                    mix-blend-multiply
-                    filter
-                    blur-xl
-                    opacity-70
-                    animate-blob
-                    animation-delay-4000
-                  "
-                  ></div>
-                  <div className="relative">
-                    <Input
-                      value={collegeName}
-                      onChange={(e) => setCollegeName(e.target.value)}
-                      required
-                      className="bg-gray-200 m-4"
-                      type="text"
-                      placeholder="College Name"
-                    />
-                    <Input
-                      value={year}
-                      onChange={(e) => setYear(e.target.value)}
-                      placeholder="Year (Eg. 2nd Year)"
-                      className="bg-gray-200 m-4"
-                      type="text"
-                    />
-                    <Input
-                      value={hackerRankId}
-                      onChange={(e) => sethackerRankId(e.target.value)}
-                      placeholder="HackerRank ID"
-                      className="bg-gray-200 m-4"
-                      type="text"
-                    />
-                    <RoundedButton
-                      style={{
-                        width: "16rem",
-                        margin: "35px auto 0px",
-                      }}
-                      type="submit"
-                      onClick={SubmitDetails}
-                    >
-                      {isloading ? <CircularProgress size="small" /> : null}
-                      <span>Continue</span>
-                    </RoundedButton>
-                    {/* </div> */}
-                  </div>
-                </div>
+        {!questionsLoading && questions ? (
+          <div className="container flex flex-col items-center px-5 py-8 mx-auto shadow-lg m-20 p-4">
+            <div className="flex flex-col w-full mb-12 prose text-left prose border-b border-gray-200">
+              <div className="w-full mx-auto">
+                <h1>{questions.docs[cnt].get("question")}</h1>
               </div>
             </div>
+
+            {questions.docs[cnt].get("image_url") != "" && (
+              <img src={questions.docs[cnt].get("image_url")} />
+            )}
+
+            <div
+              className="
+            flex flex-col
+            items-center
+            py-6
+            mx-auto
+            mb-2
+            prose
+            border-b border-gray-200
+            sm:flex-row
+            lg:w-1/2
+          "
+            >
+              <div className="inline-flex items-center flex-grow mt-6 text-left sm:mt-0">
+                <span
+                  className="
+                pr-12
+                text-xs
+                font-semibold
+                tracking-widest
+                text-blue-600
+                hover:text-neutral-600
+              "
+                >
+                  <div className="flex items-center">
+                    <div>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          className="form-radio"
+                          name="radio"
+                          value={questions.docs[cnt].get("a")}
+                          checked={
+                            Ans == questions.docs[cnt].get("a") ? true : false
+                          }
+                          onChange={(e) => {
+                            userAns[cnt] = e.target.value;
+                            setAns(e.target.value);
+                          }}
+                        />
+                        <span className="ml-2">
+                          {questions.docs[cnt].get("a")}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+
+            <div
+              className="
+            flex flex-col
+            items-center
+            py-6
+            mx-auto
+            mb-2
+            prose
+            border-b border-gray-200
+            sm:flex-row
+            lg:w-1/2
+          "
+            >
+              <div className="inline-flex items-center flex-grow mt-6 text-left sm:mt-0">
+                <span
+                  className="
+                pr-12
+                text-xs
+                font-semibold
+                tracking-widest
+                text-blue-600
+                hover:text-neutral-600
+              "
+                >
+                  <div className="flex items-center">
+                    <div>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          className="form-radio"
+                          name="radio"
+                          value={questions.docs[cnt].get("b")}
+                          checked={
+                            Ans == questions.docs[cnt].get("b") ? true : false
+                          }
+                          onChange={(e) => {
+                            userAns[cnt] = e.target.value;
+                            setAns(e.target.value);
+                          }}
+                        />
+                        <span className="ml-2">
+                          {questions.docs[cnt].get("b")}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+
+            <div
+              className="
+            flex flex-col
+            items-center
+            py-6
+            mx-auto
+            mb-2
+            prose
+            border-b border-gray-200
+            sm:flex-row
+            lg:w-1/2
+          "
+            >
+              <div className="inline-flex items-center flex-grow mt-6 text-left sm:mt-0">
+                <span
+                  className="
+                pr-12
+                text-xs
+                font-semibold
+                tracking-widest
+                text-blue-600
+                hover:text-neutral-600
+              "
+                >
+                  <div className="flex items-center">
+                    <div>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          className="form-radio"
+                          name="radio"
+                          value={questions.docs[cnt].get("c")}
+                          checked={
+                            Ans == questions.docs[cnt].get("c") ? true : false
+                          }
+                          onChange={(e) => {
+                            userAns[cnt] = e.target.value;
+                            setAns(e.target.value);
+                          }}
+                        />
+                        <span className="ml-2">
+                          {questions.docs[cnt].get("c")}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+
+            <div
+              className="
+            flex flex-col
+            items-center
+            py-6
+            mx-auto
+            mb-2
+            prose
+            border-b border-gray-200
+            sm:flex-row
+            lg:w-1/2
+          "
+            >
+              <div className="inline-flex items-center flex-grow mt-6 text-left sm:mt-0">
+                <span
+                  className="
+                pr-12
+                text-xs
+                font-semibold
+                tracking-widest
+                text-blue-600
+                hover:text-neutral-600
+              "
+                >
+                  <div className="flex items-center">
+                    <div>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          className="form-radio"
+                          name="radio"
+                          value={questions.docs[cnt].get("d")}
+                          checked={
+                            Ans == questions.docs[cnt].get("d") ? true : false
+                          }
+                          onChange={(e) => {
+                            userAns[cnt] = e.target.value;
+                            setAns(e.target.value);
+                          }}
+                        />
+                        <span className="ml-2">
+                          {questions.docs[cnt].get("d")}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-row items-center justify-around space-x-10 mt-8">
+              <Countdown
+                date={Date.now() + 60000}
+                autoStart={true}
+                key={cnt}
+                precision={2}
+                onComplete={nextQuestion}
+              />
+
+              <RoundedButton
+                style={{
+                  width: "auto",
+                }}
+                type="submit"
+                onClick={nextQuestion}
+              >
+                {isloading ? <CircularProgress size="small" /> : null}
+                <span>{cnt == 19 ? "Submit" : "Next"}</span>
+              </RoundedButton>
+            </div>
           </div>
-        </div>
+        ) : null}
       </section>
     </div>
   );
