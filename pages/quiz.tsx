@@ -13,20 +13,18 @@ interface quizProps {}
 
 export const quiz: React.FC<quizProps> = ({}) => {
   const [user, loading, error] = useAuthState(firebase.auth());
-  // console.log the current user and loading status
   const router = useRouter();
   const [isloading, setisloading] = useState(false);
+  const [timeCounter, settimeCounter] = useState(0);
 
   const db = firebase.firestore();
 
-  const [participants, participantsLoading, participantsError] = useCollection(
-    firebase.firestore().collection("participants"),
-    {}
-  );
-
   const [Ans, setAns] = useState("");
   const [cnt, setCnt] = useState(0);
-  let [userAns, setUserAns] = useState<Array<string>>([]);
+  let [tempAns, settempAns] = useState<string>("");
+  let [userAns, setUserAns] = useState<
+    Array<{ question: string; ans: string }>
+  >([]);
   let marks: number = 0;
 
   const [questions, questionsLoading, questionsError] = useCollection(
@@ -34,17 +32,45 @@ export const quiz: React.FC<quizProps> = ({}) => {
     {}
   );
 
-  const nextQuestion = () => {
-    console.log("user ans: ", userAns);
+  useEffect(() => {
+    if (window.performance) {
+      if (performance.navigation.type == 1) {
+        alert("This page is reloaded");
+      }
+    }
+  }, []);
+
+  const nextQuestion = async () => {
+    userAns.push({
+      ans: tempAns,
+      question: questions.docs[cnt].get("question"),
+    });
+    settempAns("");
     setisloading(true);
+    settimeCounter(timeCounter + 1);
     if (cnt < 19) setCnt(cnt + 1);
     else if (cnt === 19) {
       userAns.map((item, index) => {
-        console.log(item);
-        if (item === questions.docs[index].get("ans")) marks = marks + 1;
+        if (item.ans === questions.docs[index].get("ans")) marks = marks + 1;
       });
-      console.log("Marks: ", marks);
+
+      await db
+        .collection("participants")
+        .doc(user.uid)
+        .update({
+          score: marks,
+          user_ans: userAns,
+        })
+        .then(() => {
+          setisloading(false);
+          firebase.auth().signOut();
+          router.replace("/codeofiesta");
+        })
+        .catch((err) => {
+          alert("Unable to Submit details");
+        });
     }
+
     setisloading(false);
   };
 
@@ -110,8 +136,8 @@ export const quiz: React.FC<quizProps> = ({}) => {
                             Ans == questions.docs[cnt].get("a") ? true : false
                           }
                           onChange={(e) => {
-                            userAns[cnt] = e.target.value;
                             setAns(e.target.value);
+                            settempAns(e.target.value);
                           }}
                         />
                         <span className="ml-2">
@@ -160,8 +186,8 @@ export const quiz: React.FC<quizProps> = ({}) => {
                             Ans == questions.docs[cnt].get("b") ? true : false
                           }
                           onChange={(e) => {
-                            userAns[cnt] = e.target.value;
                             setAns(e.target.value);
+                            settempAns(e.target.value);
                           }}
                         />
                         <span className="ml-2">
@@ -210,8 +236,8 @@ export const quiz: React.FC<quizProps> = ({}) => {
                             Ans == questions.docs[cnt].get("c") ? true : false
                           }
                           onChange={(e) => {
-                            userAns[cnt] = e.target.value;
                             setAns(e.target.value);
+                            settempAns(e.target.value);
                           }}
                         />
                         <span className="ml-2">
@@ -260,8 +286,8 @@ export const quiz: React.FC<quizProps> = ({}) => {
                             Ans == questions.docs[cnt].get("d") ? true : false
                           }
                           onChange={(e) => {
-                            userAns[cnt] = e.target.value;
                             setAns(e.target.value);
+                            settempAns(e.target.value);
                           }}
                         />
                         <span className="ml-2">
@@ -273,13 +299,12 @@ export const quiz: React.FC<quizProps> = ({}) => {
                 </span>
               </div>
             </div>
+
             <div className="flex flex-row items-center justify-around space-x-10 mt-8">
               <Countdown
-                date={Date.now() + 60000}
-                autoStart={true}
-                key={cnt}
-                precision={2}
+                date={Date.now() + 30000}
                 onComplete={nextQuestion}
+                key={cnt}
               />
 
               <RoundedButton

@@ -3,31 +3,38 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useCollection } from "react-firebase-hooks/firestore";
+import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import RoundedButton from "../components/Buttons/Rounded";
 import Input from "../components/Input";
 import Navbar from "../components/Navbar";
 import firebase from "../utils/firebaseClient";
+import { showToast } from "../utils/showToast";
 
 interface quizProps {}
 
 export const register: React.FC<quizProps> = ({}) => {
   const [user, loading, error] = useAuthState(firebase.auth());
-  // console.log the current user and loading status
   const router = useRouter();
   const [collegeName, setCollegeName] = useState("");
   const [year, setYear] = useState("");
   const [hackerRankId, sethackerRankId] = useState("");
   const [isloading, setisloading] = useState(false);
+  const [inputDisable, setinputDisable] = useState(false);
 
   const db = firebase.firestore();
-
-  const [participants, participantsLoading, participantsError] = useCollection(
-    firebase.firestore().collection("participants"),
-    {}
-  );
+  // Configure FirebaseUI.
+  const uiConfig = {
+    signInSuccessUrl: "/register",
+    signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
+  };
 
   const SubmitDetails = async () => {
+    if (!user?.displayName) {
+      alert("First signup using Gmail");
+      return;
+    }
     setisloading(true);
     await db
       .collection("participants")
@@ -40,13 +47,12 @@ export const register: React.FC<quizProps> = ({}) => {
         hackerRankId: hackerRankId,
       })
       .then(() => {
+        showToast("Successfully Registered", "success");
         setisloading(false);
-        console.log("submitted");
-        router.push("/quiz");
+        setinputDisable(true);
       })
       .catch((err) => {
-        console.log("error : ", err);
-        alert("Unable to Submit details");
+        showToast("Failed to register", "error");
       });
 
     setisloading(false);
@@ -64,6 +70,7 @@ export const register: React.FC<quizProps> = ({}) => {
         <title>Quiz</title>
       </Head>
       <Navbar />
+      <ToastContainer />
       <section className="pt-20">
         <div className="px-4 py-12 mx-auto max-w-7xl sm:px-6 md:px-12 lg:px-24 lg:py-24">
           <div className="flex flex-wrap items-center mx-auto max-w-7xl">
@@ -96,15 +103,20 @@ export const register: React.FC<quizProps> = ({}) => {
                 {" "}
                 Code-O-Fiesta{" "}
               </h1>
-              <p className="mb-8 text-base leading-relaxed text-left text-gray-300">
+              <p className="mb-4 text-base leading-relaxed text-left text-gray-400">
                 {" "}
-                Free and Premium themes, UI Kit's, templates and landing pages
-                built with Tailwind CSS, HTML &amp; Next.js.{" "}
+                A MCQ round based on basic programming, pseudocodes, data
+                structures and algorithms, OOPs, etc.
+              </p>
+              <p className="text-base leading-relaxed text-left text-gray-400">
+                {" "}
+                You will get 90 seconds for each question and the test will be
+                of 30 minutes.
               </p>
               <img
                 src="/quiz.png"
                 className="self-center"
-                style={{ width: 300, height: 300 }}
+                style={{ width: 500, height: 350 }}
               />
             </div>
 
@@ -145,17 +157,36 @@ export const register: React.FC<quizProps> = ({}) => {
                     animation-delay-4000
                   "
                   ></div>
+
                   <div className="relative">
+                    {!loading && !user && (
+                      <div>
+                        {" "}
+                        <h3 style={{ textAlign: "center", fontWeight: "bold" }}>
+                          First Verify Your Gmail
+                        </h3>
+                        <StyledFirebaseAuth
+                          uiConfig={uiConfig}
+                          firebaseAuth={firebase.auth()}
+                        />
+                        <h3 style={{ textAlign: "center", fontWeight: "bold" }}>
+                          Then fill this form
+                        </h3>
+                      </div>
+                    )}
+
                     <Input
                       value={collegeName}
                       onChange={(e) => setCollegeName(e.target.value)}
                       required
+                      disabled={inputDisable}
                       className="bg-gray-200 m-4"
                       type="text"
                       placeholder="College Name"
                     />
                     <Input
                       value={year}
+                      disabled={inputDisable}
                       onChange={(e) => setYear(e.target.value)}
                       placeholder="Year (Eg. 2nd Year)"
                       className="bg-gray-200 m-4"
@@ -163,22 +194,37 @@ export const register: React.FC<quizProps> = ({}) => {
                     />
                     <Input
                       value={hackerRankId}
+                      disabled={inputDisable}
                       onChange={(e) => sethackerRankId(e.target.value)}
                       placeholder="HackerRank ID"
                       className="bg-gray-200 m-4"
                       type="text"
                     />
-                    <RoundedButton
-                      style={{
-                        width: "16rem",
-                        margin: "35px auto 0px",
-                      }}
-                      type="submit"
-                      onClick={SubmitDetails}
-                    >
-                      {isloading ? <CircularProgress size="small" /> : null}
-                      <span>Continue</span>
-                    </RoundedButton>
+                    {inputDisable ? (
+                      <RoundedButton
+                        style={{
+                          width: "16rem",
+                          margin: "35px auto 0px",
+                        }}
+                        type="submit"
+                        onClick={() => router.push("/quiz")}
+                      >
+                        {isloading ? <CircularProgress size="small" /> : null}
+                        <span>Start Test</span>
+                      </RoundedButton>
+                    ) : (
+                      <RoundedButton
+                        style={{
+                          width: "16rem",
+                          margin: "35px auto 0px",
+                        }}
+                        type="submit"
+                        onClick={SubmitDetails}
+                      >
+                        {isloading ? <CircularProgress size="small" /> : null}
+                        <span>Submit</span>
+                      </RoundedButton>
+                    )}
                     {/* </div> */}
                   </div>
                 </div>

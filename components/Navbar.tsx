@@ -30,9 +30,11 @@ const Navbar: React.FC<any> = () => {
           } space-y-3 xl:space-y-0 flex-col xl:flex-row xl:space-x-8`}
         >
           <a className="flex items-center space-x-3">
-            <img src={user?.photoURL} alt="User" width={20} height={20} />
+            {!loading && user?.photoURL && (
+              <img src={user?.photoURL} alt="User" width={20} height={20} />
+            )}
             <h2 className="font-normal text-md md:text-lg">
-              {!loading && user.displayName ? user.displayName : "Login"}
+              {!loading && user?.displayName && user?.displayName}
             </h2>
           </a>
         </div>
