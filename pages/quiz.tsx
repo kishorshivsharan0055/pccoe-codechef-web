@@ -37,7 +37,8 @@ export const quiz: React.FC<quizProps> = ({}) => {
   useEffect(() => {
     if (window.performance) {
       if (performance.navigation.type == 1) {
-        alert("This page is reloaded");
+        alert("This page is reloaded, You will be logged out");
+        firebase.auth().signOut();
       }
     }
   }, []);
@@ -80,9 +81,9 @@ export const quiz: React.FC<quizProps> = ({}) => {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/auth");
+      router.push("/register");
     }
-  }, []);
+  }, [user]);
 
   return (
     <div>

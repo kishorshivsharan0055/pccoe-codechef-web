@@ -7,6 +7,7 @@ import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import RoundedButton from "../components/Buttons/Rounded";
+import Footer from "../components/footer";
 import Input from "../components/Input";
 import Navbar from "../components/Navbar";
 import firebase from "../utils/firebaseClient";
@@ -22,6 +23,7 @@ export const register: React.FC<quizProps> = ({}) => {
   const [hackerRankId, sethackerRankId] = useState("");
   const [isloading, setisloading] = useState(false);
   const [inputDisable, setinputDisable] = useState(false);
+  const [btnBg, setbtnBg] = useState("bg-gray-100");
 
   const db = firebase.firestore();
   // Configure FirebaseUI.
@@ -50,6 +52,7 @@ export const register: React.FC<quizProps> = ({}) => {
         showToast("Successfully Registered", "success");
         setisloading(false);
         setinputDisable(true);
+        setbtnBg("bg-gray-400");
       })
       .catch((err) => {
         showToast("Failed to register", "error");
@@ -180,7 +183,7 @@ export const register: React.FC<quizProps> = ({}) => {
                       onChange={(e) => setCollegeName(e.target.value)}
                       required
                       disabled={inputDisable}
-                      className="bg-gray-200 m-4"
+                      className={`m-4 ${btnBg}`}
                       type="text"
                       placeholder="College Name"
                     />
@@ -189,7 +192,7 @@ export const register: React.FC<quizProps> = ({}) => {
                       disabled={inputDisable}
                       onChange={(e) => setYear(e.target.value)}
                       placeholder="Year (Eg. 2nd Year)"
-                      className="bg-gray-200 m-4"
+                      className={`m-4 ${btnBg}`}
                       type="text"
                     />
                     <Input
@@ -197,7 +200,7 @@ export const register: React.FC<quizProps> = ({}) => {
                       disabled={inputDisable}
                       onChange={(e) => sethackerRankId(e.target.value)}
                       placeholder="HackerRank ID"
-                      className="bg-gray-200 m-4"
+                      className={`m-4 ${btnBg}`}
                       type="text"
                     />
                     {inputDisable ? (
@@ -233,6 +236,7 @@ export const register: React.FC<quizProps> = ({}) => {
           </div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 };
