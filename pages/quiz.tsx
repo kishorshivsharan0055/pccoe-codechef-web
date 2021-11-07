@@ -9,15 +9,22 @@ import RoundedButton from "../components/Buttons/Rounded";
 import Navbar from "../components/Navbar";
 import firebase from "../utils/firebaseClient";
 
-interface quizProps {}
+interface quizProps {
+  date: string;
+}
 
-export const quiz: React.FC<quizProps> = ({}) => {
+export const quiz: React.FC<quizProps> = ({ date }) => {
   const [user, loading, error] = useAuthState(firebase.auth());
   const router = useRouter();
   const [isloading, setisloading] = useState(false);
-  const [timeCounter, settimeCounter] = useState(0);
+  let countTimer = false;
 
   const db = firebase.firestore();
+
+  const [response, resLoading, resError] = useCollection(
+    firebase.firestore().collection("responses"),
+    {}
+  );
 
   const [Ans, setAns] = useState("");
   const [cnt, setCnt] = useState(0);
@@ -25,6 +32,16 @@ export const quiz: React.FC<quizProps> = ({}) => {
   let [userAns, setUserAns] = useState<
     Array<{ question: string; ans: string }>
   >([]);
+
+  useEffect(() => {
+    for (var i = 0; i < 20; i++) {
+      userAns.push({
+        ans: "",
+        question: "",
+      });
+    }
+  }, []);
+
   let marks: number = 0;
 
   const [questions, questionsLoading, questionsError] = useCollection(
@@ -32,29 +49,63 @@ export const quiz: React.FC<quizProps> = ({}) => {
     {}
   );
 
-  const [timer, settimer] = useState(Date.now() + 60000);
+  let [timer] = useState(
+    response ? response?.docs[0]?.get("date") : "November 8, 2021 09:30:00"
+  );
 
   useEffect(() => {
-    if (window.performance) {
-      if (performance.navigation.type == 1) {
-        alert("This page is reloaded, You will be logged out");
-        firebase.auth().signOut();
-      }
+    if (response) {
+      timer = response?.docs[0]?.get("date");
     }
-  }, []);
+
+    const currTime = Date.now();
+    if (currTime > new Date(timer).getTime()) {
+      console.log("time up");
+      router.replace("/register");
+    }
+  }, [!resLoading]);
+
+  // const [timer, settimer] = useState(Date.now() + 8000);
+
+  // useEffect(() => {
+  //   if (window.performance) {
+  //     if (performance.navigation.type == 1) {
+  //       alert("This page is reloaded, You will be logged out");
+  //       firebase.auth().signOut();
+  //     }
+  //   }
+  // }, []);
+
+  const prevQuestion = () => {
+    if (response?.docs[0]?.get("take_response") == false) {
+      router.replace("/register");
+    }
+
+    timer = response?.docs[0]?.get("date");
+    if (tempAns != "") {
+      userAns[cnt].ans = tempAns;
+      userAns[cnt].question = questions.docs[cnt].get("question");
+    }
+    settempAns("");
+    setCnt(cnt - 1);
+  };
 
   const nextQuestion = async () => {
-    userAns.push({
-      ans: tempAns,
-      question: questions.docs[cnt].get("question"),
-    });
+    if (response?.docs[0]?.get("take_response") == false) {
+      router.replace("/register");
+    }
+
+    timer = response?.docs[0]?.get("date");
+    if (tempAns != "") {
+      userAns[cnt].ans = tempAns;
+      userAns[cnt].question = questions.docs[cnt].get("question");
+    }
     settempAns("");
     setisloading(true);
-    settimeCounter(timeCounter + 1);
-    if (cnt < 19) {
+
+    if (cnt < 19 && countTimer == false) {
       setCnt(cnt + 1);
-      settimer(Date.now() + 60000);
-    } else if (cnt === 19) {
+    } else if (cnt === 19 || countTimer == true) {
       userAns.map((item, index) => {
         if (item.ans === questions.docs[index].get("ans")) marks = marks + 1;
       });
@@ -74,7 +125,6 @@ export const quiz: React.FC<quizProps> = ({}) => {
           alert("Unable to Submit details");
         });
     }
-
     setisloading(false);
   };
 
@@ -94,9 +144,42 @@ export const quiz: React.FC<quizProps> = ({}) => {
       <section className="pt-20">
         {!questionsLoading && questions ? (
           <div className="container flex flex-col items-center px-5 py-8 mx-auto shadow-lg m-20 p-4">
-            <div className="flex flex-col w-full mb-12 prose text-left prose border-b border-gray-200">
+            <div className="flex flex-wrap">
+              {userAns.map((item, index) => (
+                <div
+                  key={index}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    backgroundColor: item.ans == "" ? "red" : "green",
+                    margin: 2,
+                    color: "white",
+                    textAlign: "center",
+                    borderWidth: index === cnt ? 4 : 0,
+                    borderColor: index === cnt ? "blue" : "white",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    if (tempAns != "") {
+                      userAns[cnt].ans = tempAns;
+                      userAns[cnt].question =
+                        questions.docs[cnt].get("question");
+                    }
+                    timer = response?.docs[0]?.get("date");
+                    if (response?.docs[0]?.get("take_response") == false) {
+                      router.replace("/register");
+                    }
+                    settempAns("");
+                    setCnt(index);
+                  }}
+                >
+                  {index + 1}
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-col w-full mb-12 prose text-left prose border-b border-gray-200 mt-5">
               <div className="w-full mx-auto">
-                <h1>{questions.docs[cnt].get("question")}</h1>
+                <h1>{cnt + 1 + ". " + questions.docs[cnt].get("question")}</h1>
               </div>
             </div>
 
@@ -305,7 +388,27 @@ export const quiz: React.FC<quizProps> = ({}) => {
             </div>
 
             <div className="flex flex-row items-center justify-around space-x-10 mt-8">
-              <Countdown date={timer} onComplete={nextQuestion} key={cnt} />
+              <RoundedButton
+                style={{
+                  width: "auto",
+                }}
+                type="submit"
+                disabled={cnt === 0}
+                onClick={prevQuestion}
+              >
+                {isloading ? <CircularProgress size="small" /> : null}
+                <span>Previous</span>
+              </RoundedButton>
+
+              <Countdown
+                date={response ? response?.docs[0]?.get("date") : timer}
+                // date={timer}
+                onComplete={() => {
+                  countTimer = true;
+                  nextQuestion();
+                }}
+                key={cnt}
+              />
 
               <RoundedButton
                 style={{

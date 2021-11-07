@@ -12,6 +12,7 @@ import Input from "../components/Input";
 import Navbar from "../components/Navbar";
 import firebase from "../utils/firebaseClient";
 import { showToast } from "../utils/showToast";
+import { useCollection } from "react-firebase-hooks/firestore";
 
 interface quizProps {}
 
@@ -26,7 +27,7 @@ export const register: React.FC<quizProps> = ({}) => {
   const [btnBg, setbtnBg] = useState("bg-gray-100");
 
   const db = firebase.firestore();
-  // Configure FirebaseUI.
+
   const uiConfig = {
     signInSuccessUrl: "/register",
     signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
@@ -113,8 +114,7 @@ export const register: React.FC<quizProps> = ({}) => {
               </p>
               <p className="text-base leading-relaxed text-left text-gray-400">
                 {" "}
-                You will get 90 seconds for each question and the test will be
-                of 30 minutes.
+                Test will be of 30 minutes.
               </p>
               <img
                 src="/quiz.png"

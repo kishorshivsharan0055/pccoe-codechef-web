@@ -7,9 +7,9 @@ import firebase from "../utils/firebaseClient";
 interface codeofiestaProps {}
 
 export const codeofiesta: React.FC<codeofiestaProps> = ({}) => {
-  useEffect(() => {
-    firebase.auth().signOut();
-  }, []);
+  // useEffect(() => {
+  //   firebase.auth().signOut();
+  // }, []);
 
   return (
     <div>
