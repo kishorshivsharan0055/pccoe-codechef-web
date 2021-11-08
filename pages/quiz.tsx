@@ -53,17 +53,17 @@ export const quiz: React.FC<quizProps> = ({ date }) => {
     response ? response?.docs[0]?.get("date") : "November 8, 2021 09:30:00"
   );
 
-  useEffect(() => {
-    if (response) {
-      timer = response?.docs[0]?.get("date");
-    }
+  // useEffect(() => {
+  //   if (response) {
+  //     timer = response?.docs[0]?.get("date");
+  //   }
 
-    const currTime = Date.now();
-    if (currTime > new Date(timer).getTime()) {
-      console.log("time up");
-      router.replace("/register");
-    }
-  }, [!resLoading]);
+  //   const currTime = Date.now();
+  //   if (currTime > new Date(timer).getTime()) {
+  //     console.log("time up");
+  //     router.replace("/register");
+  //   }
+  // }, [!resLoading]);
 
   // const [timer, settimer] = useState(Date.now() + 8000);
 
