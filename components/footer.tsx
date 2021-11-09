@@ -1,4 +1,5 @@
 import Container from "./container";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -29,6 +30,11 @@ export default function Footer() {
             <img src="/twitter.svg" alt="twitter" className="w-6 h-6" />
           </a>
         </div>
+        <Link href="https://www.linkedin.com/in/kishor-shivsharan-40781b179/">
+          <div className="pb-6 space-x-6 flex  lg:flex-row items-center place-content-center text-base font-light cursor-pointer text-blue-600">
+            Developed by Kishor Shivsharan
+          </div>
+        </Link>
       </Container>
     </footer>
   );

@@ -19,7 +19,7 @@ const Navbar: React.FC<any> = () => {
         <div className="my-2 flex items-center xl:flex-grow">
           <Link href="/">
             <a className="font-semibold text-2xl md:text-4xl flex-grow">
-              Code-O-Fiesta
+              Codechef Pccoe Chapter
             </a>
           </Link>
         </div>

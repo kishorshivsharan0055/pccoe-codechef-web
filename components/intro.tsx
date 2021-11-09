@@ -1,4 +1,4 @@
-import { CMS_NAME, CMS_URL } from "../lib/constants";
+import Link from "next/link";
 
 export default function Intro() {
   return (
@@ -32,6 +32,11 @@ export default function Intro() {
         <a href="https://twitter.com/CodechefPccoe">
           <img src="/twitter.svg" alt="twitter" className="w-6 h-6" />
         </a>
+        <Link href="/register">
+          <h2 className="font-bold text-base text-blue-400 cursor-pointer">
+            Take Quiz
+          </h2>
+        </Link>
       </div>
     </section>
   );

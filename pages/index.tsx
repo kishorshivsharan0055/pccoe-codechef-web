@@ -7,6 +7,7 @@ import Layout from "../components/layout";
 import { indexQuery } from "../lib/queries";
 import { getClient, overlayDrafts } from "../lib/sanity.server";
 import Info from "../components/info";
+import Navbar from "../components/Navbar";
 
 export default function Index({ allPosts, preview }) {
   const heroPost = allPosts[0];

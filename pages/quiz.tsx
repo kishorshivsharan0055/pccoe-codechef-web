@@ -49,9 +49,7 @@ export const quiz: React.FC<quizProps> = ({ date }) => {
     {}
   );
 
-  let [timer] = useState(
-    response ? response?.docs[0]?.get("date") : "November 8, 2021 09:30:00"
-  );
+  const [timer] = useState(Date.now() + 1800000);
 
   // useEffect(() => {
   //   if (response) {
@@ -81,7 +79,6 @@ export const quiz: React.FC<quizProps> = ({ date }) => {
       router.replace("/register");
     }
 
-    timer = response?.docs[0]?.get("date");
     if (tempAns != "") {
       userAns[cnt].ans = tempAns;
       userAns[cnt].question = questions.docs[cnt].get("question");
@@ -95,7 +92,6 @@ export const quiz: React.FC<quizProps> = ({ date }) => {
       router.replace("/register");
     }
 
-    timer = response?.docs[0]?.get("date");
     if (tempAns != "") {
       userAns[cnt].ans = tempAns;
       userAns[cnt].question = questions.docs[cnt].get("question");
@@ -165,7 +161,6 @@ export const quiz: React.FC<quizProps> = ({ date }) => {
                       userAns[cnt].question =
                         questions.docs[cnt].get("question");
                     }
-                    timer = response?.docs[0]?.get("date");
                     if (response?.docs[0]?.get("take_response") == false) {
                       router.replace("/register");
                     }
@@ -401,8 +396,7 @@ export const quiz: React.FC<quizProps> = ({ date }) => {
               </RoundedButton>
 
               <Countdown
-                date={response ? response?.docs[0]?.get("date") : timer}
-                // date={timer}
+                date={timer}
                 onComplete={() => {
                   countTimer = true;
                   nextQuestion();
